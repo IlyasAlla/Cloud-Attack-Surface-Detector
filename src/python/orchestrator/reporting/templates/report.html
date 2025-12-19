@@ -1,0 +1,608 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+        --bg-body: #05050a;
+        --bg-card: #0f1016;
+        --bg-card-hover: #161821;
+        --border-color: rgba(255, 255, 255, 0.08);
+
+        --text-primary: #ffffff;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+
+        --accent-primary: #00f2ff;
+        /* Cyan Neon */
+        --accent-secondary: #7000ff;
+        /* Purple Neon */
+        --accent-danger: #ff0055;
+        /* Red Neon */
+        --accent-warning: #ffbd00;
+        /* Yellow Neon */
+        --accent-success: #00ff9d;
+        /* Green Neon */
+
+        --gradient-primary: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        --glass-bg: rgba(15, 16, 22, 0.7);
+        --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Outfit', sans-serif;
+        background-image:
+            radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.05) 0%, transparent 40%);
+        min-height: 100vh;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-weight: 600;
+        letter-spacing: -0.03em;
+    }
+
+    .container-fluid {
+        max-width: 1600px;
+        padding: 2rem;
+    }
+
+    /* Cards */
+    .card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: var(--glass-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        overflow: hidden;
+        margin-bottom: 24px;
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.15);
+        background: var(--bg-card-hover);
+    }
+
+    .card-header {
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 1.5rem;
+    }
+
+    /* Typography & Accents */
+    .text-gradient {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
+
+    .mono {
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Stats */
+    .stat-value {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.05em;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    /* Table */
+    .table-container {
+        border-radius: 16px;
+        overflow: hidden;
+        border: var(--glass-border);
+    }
+
+    .table {
+        margin-bottom: 0;
+        color: var(--text-secondary);
+    }
+
+    .table thead th {
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-primary);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+    }
+
+    .table tbody td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        transition: background-color 0.2s;
+    }
+
+    .table-hover tbody tr:hover td {
+        background-color: rgba(255, 255, 255, 0.02);
+        color: var(--text-primary);
+    }
+
+    /* Badges */
+    .badge {
+        font-weight: 500;
+        padding: 0.4em 0.8em;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        letter-spacing: 0.02em;
+    }
+
+    .badge-glow-primary {
+        background: rgba(0, 242, 255, 0.1);
+        color: var(--accent-primary);
+        border: 1px solid rgba(0, 242, 255, 0.2);
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+    }
+
+    .badge-glow-danger {
+        background: rgba(255, 0, 85, 0.1);
+        color: var(--accent-danger);
+        border: 1px solid rgba(255, 0, 85, 0.2);
+        box-shadow: 0 0 10px rgba(255, 0, 85, 0.1);
+    }
+
+    .badge-glow-success {
+        background: rgba(0, 255, 157, 0.1);
+        color: var(--accent-success);
+        border: 1px solid rgba(0, 255, 157, 0.2);
+        box-shadow: 0 0 10px rgba(0, 255, 157, 0.1);
+    }
+
+    .badge-glow-warning {
+        background: rgba(255, 189, 0, 0.1);
+        color: var(--accent-warning);
+        border: 1px solid rgba(255, 189, 0, 0.2);
+    }
+
+    .badge-outline {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+    }
+
+    /* Charts Container */
+    .chart-container {
+        position: relative;
+        height: 250px;
+        width: 100%;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-5 align-items-end">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="badge badge-glow-primary mono">NETWORK SCAN</div>
+                <div class="text-muted small mono">{{ stats.generated_at }}</div>
+            </div>
+            <h1 class="display-4 mb-0 fw-bold">
+                Network <span class="text-gradient">Attack Surface</span> Report
+            </h1>
+            <p class="lead text-secondary mt-2 mb-0" style="max-width: 600px;">
+                Deep packet inspection and vulnerability analysis for network assets.
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="d-inline-block text-end">
+                <div class="text-muted small mb-1">SCAN STATUS</div>
+                <div class="d-flex align-items-center justify-content-end gap-2">
+                    <span class="badge badge-glow-success">COMPLETED</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats & Charts Grid -->
+    <div class="row g-4 mb-5">
+        <!-- Key Metrics -->
+        <div class="col-lg-3">
+            <div class="d-flex flex-column gap-4 h-100">
+                <div class="card flex-grow-1">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-4">
+                        <div class="stat-value text-white">{{ stats.total }}</div>
+                        <div class="stat-label">Total Assets</div>
+                    </div>
+                </div>
+                <div class="card flex-grow-1" style="border-color: rgba(255, 0, 85, 0.3);">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-4">
+                        <div class="stat-value" style="color: var(--accent-danger);">{{ stats.vuln }}</div>
+                        <div class="stat-label text-danger">Vulnerable Assets</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">Port Distribution</h5>
+                    <i class="bi bi-pie-chart text-muted"></i>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="chart-container">
+                        <canvas id="portChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">Header Compliance</h5>
+                    <i class="bi bi-shield-check text-muted"></i>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="chart-container">
+                        <canvas id="headerChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Details Table -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0 text-white">
+                <i class="bi bi-grid-3x3-gap me-2 text-gradient"></i>
+                Asset Details
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Asset Identity</th>
+                        <th>Network Exposure</th>
+                        <th>Open Ports & Services</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    {% if asset.open_ports %}
+                    <tr>
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <div class="fw-bold text-white mono">{{ asset.id }}</div>
+                                <div class="d-flex gap-2 mt-1">
+                                    <span class="badge badge-glow-primary">{{ asset.provider }}</span>
+                                    {% if asset.region and asset.region != 'global' %}
+                                    <span class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ asset.region
+                                        }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="http://{{ asset.ip_address }}" target="_blank"
+                                class="text-info text-decoration-none mono fw-bold">
+                                <i class="bi bi-globe me-1"></i>{{ asset.ip_address }}
+                            </a>
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for port in asset.open_ports %}
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="badge badge-outline mono"
+                                        style="color: var(--accent-primary); border-color: rgba(0, 242, 255, 0.3);">
+                                        {{ port }}
+                                    </span>
+                                    {% if port in asset.banners %}
+                                    <span class="text-muted small mono" style="font-size: 0.75rem;">{{
+                                        asset.banners[port] }}</span>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- HTTP Security Headers -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0 text-white">
+                <i class="bi bi-shield-lock me-2 text-gradient"></i>
+                HTTP Security Analysis
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Target</th>
+                        <th>Port</th>
+                        <th>HSTS</th>
+                        <th>X-Frame-Options</th>
+                        <th>CSP</th>
+                        <th>Server</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    {% for port, headers in asset.http_headers.items() %}
+                    <tr>
+                        <td class="mono text-white">{{ asset.id }}</td>
+                        <td class="mono text-muted">{{ port }}</td>
+                        <td>
+                            {% if 'Strict-Transport-Security' in headers %}
+                            <span class="badge badge-glow-success">Present</span>
+                            {% else %}
+                            <span class="badge badge-outline text-warning"
+                                style="border-color: var(--accent-warning);">Missing</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if 'X-Frame-Options' in headers %}
+                            <span class="badge badge-glow-success">Present</span>
+                            {% else %}
+                            <span class="badge badge-outline text-muted">Missing</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if 'Content-Security-Policy' in headers %}
+                            <span class="badge badge-glow-success">Present</span>
+                            {% else %}
+                            <span class="badge badge-outline text-warning"
+                                style="border-color: var(--accent-warning);">Missing</span>
+                            {% endif %}
+                        </td>
+                        <td class="mono small text-info">{{ headers.get('Server', 'Unknown') }}</td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- SSL/TLS Analysis -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0 text-white">
+                <i class="bi bi-lock me-2 text-gradient"></i>
+                SSL/TLS Configuration
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Target</th>
+                        <th>Subject / Issuer</th>
+                        <th>Validity</th>
+                        <th>SANs</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    {% for port, ssl in asset.ssl_info.items() %}
+                    <tr>
+                        <td class="mono text-white">{{ asset.id }}:{{ port }}</td>
+                        <td>
+                            <div class="d-flex flex-column small">
+                                <span class="text-white">S: {{ ssl.get('Subject', 'N/A') }}</span>
+                                <span class="text-muted">I: {{ ssl.get('Issuer', 'N/A') }}</span>
+                            </div>
+                        </td>
+                        <td class="small text-muted">{{ ssl.get('Expires', 'N/A') }}</td>
+                        <td class="small text-muted text-truncate" style="max-width: 200px;"
+                            title="{{ ssl.get('DNSNames', '') }}">
+                            {{ ssl.get('DNSNames', 'N/A') }}
+                        </td>
+                        <td>
+                            {% if ssl.get('Status') == 'Valid' %}
+                            <span class="badge badge-glow-success">Valid</span>
+                            {% else %}
+                            <span class="badge badge-glow-danger">Invalid</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Content Discovery (Fuzzing) -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0 text-white">
+                <i class="bi bi-search me-2 text-gradient"></i>
+                Content Discovery (Fuzzing)
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Target</th>
+                        <th>Discovered Paths</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    {% if asset.paths %}
+                    <tr>
+                        <td class="mono text-white" style="width: 20%;">{{ asset.id }}</td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for path in asset.paths %}
+                                <a href="http://{{ asset.ip_address }}{{ path }}" target="_blank"
+                                    class="badge badge-outline text-decoration-none mono hover-glow">
+                                    {{ path }}
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Vulnerabilities -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0 text-white">
+                <i class="bi bi-exclamation-triangle me-2 text-gradient"></i>
+                Vulnerability Findings
+            </h5>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th>Target</th>
+                        <th>Category</th>
+                        <th>Findings</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    {% if asset.vulnerabilities %}
+                    {% for category, vulns in asset.vulnerabilities.items() %}
+                    <tr>
+                        <td class="mono text-white">{{ asset.id }}</td>
+                        <td><span class="badge badge-glow-danger">{{ category }}</span></td>
+                        <td class="text-secondary">
+                            <ul class="mb-0 ps-3">
+                                {% for v in vulns %}
+                                <li>{{ v }}</li>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        // Prepare Data
+        const networkAssets = JSON.parse('{{ assets|tojson }}');
+
+
+        // 1. Port Distribution
+        const portCounts = {};
+        networkAssets.forEach(a => {
+            if (a.open_ports) {
+                a.open_ports.forEach(p => {
+                    portCounts[p] = (portCounts[p] || 0) + 1;
+                });
+            }
+        });
+
+        // 2. Header Compliance
+        let hsts = 0, xfo = 0, csp = 0, totalHttp = 0;
+        networkAssets.forEach(a => {
+            if (a.http_headers) {
+                Object.values(a.http_headers).forEach(h => {
+                    totalHttp++;
+                    if (h['Strict-Transport-Security']) hsts++;
+                    if (h['X-Frame-Options']) xfo++;
+                    if (h['Content-Security-Policy']) csp++;
+                });
+            }
+        });
+
+        // Chart Defaults
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Outfit', sans-serif";
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+
+        // Render Port Chart
+        new Chart(document.getElementById('portChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(portCounts).map(p => 'Port ' + p),
+                datasets: [{
+                    data: Object.values(portCounts),
+                    backgroundColor: ['#00f2ff', '#7000ff', '#ff0055', '#ffbd00', '#00ff9d'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { boxWidth: 12, padding: 20 } }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Render Header Chart
+        new Chart(document.getElementById('headerChart'), {
+            type: 'bar',
+            data: {
+                labels: ['HSTS', 'X-Frame', 'CSP'],
+                datasets: [{
+                    label: 'Present',
+                    data: [hsts, xfo, csp],
+                    backgroundColor: '#00ff9d',
+                    borderRadius: 4
+                }, {
+                    label: 'Missing',
+                    data: [totalHttp - hsts, totalHttp - xfo, totalHttp - csp],
+                    backgroundColor: '#ff0055',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { stacked: true, grid: { display: false } },
+                    y: { stacked: true, grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+                },
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
+    })();
+</script>
+{% endblock %}

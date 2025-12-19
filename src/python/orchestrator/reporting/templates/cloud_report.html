@@ -1,0 +1,540 @@
+{% extends "base.html" %}
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+    :root {
+        --bg-body: #05050a;
+        --bg-card: #0f1016;
+        --bg-card-hover: #161821;
+        --border-color: rgba(255, 255, 255, 0.08);
+
+        --text-primary: #ffffff;
+        --text-secondary: #94a3b8;
+        --text-muted: #64748b;
+
+        --accent-primary: #00f2ff;
+        /* Cyan Neon */
+        --accent-secondary: #7000ff;
+        /* Purple Neon */
+        --accent-danger: #ff0055;
+        /* Red Neon */
+        --accent-warning: #ffbd00;
+        /* Yellow Neon */
+        --accent-success: #00ff9d;
+        /* Green Neon */
+
+        --gradient-primary: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+        --glass-bg: rgba(15, 16, 22, 0.7);
+        --glass-border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    body {
+        background-color: var(--bg-body);
+        color: var(--text-primary);
+        font-family: 'Outfit', sans-serif;
+        background-image:
+            radial-gradient(circle at 10% 20%, rgba(112, 0, 255, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.05) 0%, transparent 40%);
+        min-height: 100vh;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-weight: 600;
+        letter-spacing: -0.03em;
+    }
+
+    .container-fluid {
+        max-width: 1600px;
+        padding: 2rem;
+    }
+
+    /* Cards */
+    .card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: var(--glass-border);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        overflow: hidden;
+    }
+
+    .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 255, 255, 0.15);
+        background: var(--bg-card-hover);
+    }
+
+    .card-header {
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 1.5rem;
+    }
+
+    /* Typography & Accents */
+    .text-gradient {
+        background: var(--gradient-primary);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
+
+    .mono {
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Stats */
+    .stat-value {
+        font-size: 3.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.05em;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-secondary);
+        font-weight: 500;
+    }
+
+    /* Table */
+    .table-container {
+        border-radius: 16px;
+        overflow: hidden;
+        border: var(--glass-border);
+    }
+
+    .table {
+        margin-bottom: 0;
+        color: var(--text-secondary);
+    }
+
+    .table thead th {
+        background: rgba(255, 255, 255, 0.03);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        color: var(--text-primary);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+        padding: 1rem 1.5rem;
+    }
+
+    .table tbody td {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        padding: 1.25rem 1.5rem;
+        vertical-align: middle;
+        transition: background-color 0.2s;
+    }
+
+    .table-hover tbody tr:hover td {
+        background-color: rgba(255, 255, 255, 0.02);
+        color: var(--text-primary);
+    }
+
+    /* Badges */
+    .badge {
+        font-weight: 500;
+        padding: 0.4em 0.8em;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        letter-spacing: 0.02em;
+    }
+
+    .badge-glow-primary {
+        background: rgba(0, 242, 255, 0.1);
+        color: var(--accent-primary);
+        border: 1px solid rgba(0, 242, 255, 0.2);
+        box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+    }
+
+    .badge-glow-danger {
+        background: rgba(255, 0, 85, 0.1);
+        color: var(--accent-danger);
+        border: 1px solid rgba(255, 0, 85, 0.2);
+        box-shadow: 0 0 10px rgba(255, 0, 85, 0.1);
+    }
+
+    .badge-glow-warning {
+        background: rgba(255, 189, 0, 0.1);
+        color: var(--accent-warning);
+        border: 1px solid rgba(255, 189, 0, 0.2);
+    }
+
+    .badge-outline {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        color: var(--text-secondary);
+    }
+
+    /* Metadata Tags */
+    .meta-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        margin-right: 6px;
+        margin-bottom: 6px;
+        transition: all 0.2s;
+    }
+
+    .meta-pill:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: var(--text-primary);
+    }
+
+    .meta-pill i {
+        font-size: 0.9em;
+        opacity: 0.7;
+    }
+
+    /* Vulnerability List */
+    .vuln-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 0;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+    }
+
+    .vuln-row:last-child {
+        border-bottom: none;
+    }
+
+    .vuln-icon {
+        color: var(--accent-danger);
+        filter: drop-shadow(0 0 5px rgba(255, 0, 85, 0.4));
+    }
+
+    /* Charts Container */
+    .chart-container {
+        position: relative;
+        height: 250px;
+        width: 100%;
+    }
+</style>
+
+<div class="container-fluid">
+    <!-- Header Section -->
+    <div class="row mb-5 align-items-end">
+        <div class="col-md-8">
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="badge badge-glow-primary mono">V 2.0.0</div>
+                <div class="text-muted small mono">{{ stats.generated_at }}</div>
+            </div>
+            <h1 class="display-4 mb-0 fw-bold">
+                Cloud <span class="text-gradient">Attack Surface</span> Report
+            </h1>
+            <p class="lead text-secondary mt-2 mb-0" style="max-width: 600px;">
+                Advanced security telemetry and vulnerability analysis for your cloud infrastructure.
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="d-inline-block text-end">
+                <div class="text-muted small mb-1">SCAN STATUS</div>
+                <div class="d-flex align-items-center justify-content-end gap-2">
+                    <span class="badge badge-glow-success">COMPLETED</span>
+                    <span class="badge badge-outline mono">{{ stats.providers|join(', ') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats & Charts Grid -->
+    <div class="row g-4 mb-5">
+        <!-- Key Metrics -->
+        <div class="col-lg-3">
+            <div class="d-flex flex-column gap-4 h-100">
+                <div class="card flex-grow-1">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-4">
+                        <div class="stat-value text-white">{{ stats.total }}</div>
+                        <div class="stat-label">Total Assets</div>
+                    </div>
+                </div>
+                <div class="card flex-grow-1" style="border-color: rgba(255, 0, 85, 0.3);">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-4">
+                        <div class="stat-value" style="color: var(--accent-danger);">{{ stats.vuln }}</div>
+                        <div class="stat-label text-danger">Critical Findings</div>
+                    </div>
+                </div>
+                <div class="card flex-grow-1">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center text-center p-4">
+                        <div class="stat-value" style="color: var(--accent-warning);">{{ stats.shadow_assets }}</div>
+                        <div class="stat-label text-warning">Shadow Assets</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="col-lg-5">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">Asset Distribution</h5>
+                    <i class="bi bi-pie-chart text-muted"></i>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="chart-container">
+                        <canvas id="assetChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 text-white">Risk Profile</h5>
+                    <i class="bi bi-shield-exclamation text-muted"></i>
+                </div>
+                <div class="card-body d-flex align-items-center justify-content-center">
+                    <div class="chart-container">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Table -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-white">
+                    <i class="bi bi-grid-3x3-gap me-2 text-gradient"></i>
+                    Detailed Asset Inventory
+                </h5>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Export CSV</button>
+                    <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">Print Report</button>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-dark table-hover align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 25%">Asset Identity</th>
+                        <th style="width: 25%">Technical Metadata</th>
+                        <th style="width: 20%">Network Exposure</th>
+                        <th style="width: 30%">Security Analysis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    <tr>
+                        <!-- Identity -->
+                        <td>
+                            <div class="d-flex flex-column gap-1">
+                                <div class="fw-bold text-white mono" style="font-size: 0.95rem;">{{ asset.id }}</div>
+                                <div class="d-flex gap-2 mt-1">
+                                    <span class="badge badge-glow-primary">{{ asset.provider }}</span>
+                                    <span class="badge badge-outline">{{ asset.resource_type }}</span>
+                                </div>
+                                {% if asset.region and asset.region != 'global' %}
+                                <div class="small text-muted mt-1">
+                                    <i class="bi bi-geo-alt me-1"></i>{{ asset.region }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Metadata -->
+                        <td>
+                            <div class="d-flex flex-wrap align-content-start">
+                                {% if asset.metadata.get('OS') %}
+                                <div class="meta-pill" title="Operating System">
+                                    <i class="bi bi-cpu"></i> {{ asset.metadata['OS'] }}
+                                </div>
+                                {% endif %}
+                                {% if asset.metadata.get('MAC') %}
+                                <div class="meta-pill mono" title="MAC Address">
+                                    <i class="bi bi-ethernet"></i> {{ asset.metadata['MAC'] }}
+                                </div>
+                                {% endif %}
+                                {% if asset.metadata.get('Size') %}
+                                <div class="meta-pill" title="Storage Size">
+                                    <i class="bi bi-hdd"></i> {{ asset.metadata['Size'] }}
+                                </div>
+                                {% endif %}
+                                {% if asset.metadata.get('Type') %}
+                                <div class="meta-pill" title="Resource Type">
+                                    <i class="bi bi-box"></i> {{ asset.metadata['Type'] }}
+                                </div>
+                                {% endif %}
+                                {% if asset.metadata.get('Arn') %}
+                                <div class="meta-pill mono text-truncate" style="max-width: 100%;"
+                                    title="{{ asset.metadata['Arn'] }}">
+                                    <i class="bi bi-fingerprint"></i> {{ asset.metadata['Arn'] }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Network -->
+                        <td>
+                            {% if asset.ip_address and asset.ip_address != 'N/A' %}
+                            <div class="mb-2">
+                                <a href="http://{{ asset.ip_address }}" target="_blank"
+                                    class="text-info text-decoration-none mono fw-bold">
+                                    <i class="bi bi-globe me-1"></i>{{ asset.ip_address }}
+                                </a>
+                            </div>
+                            {% endif %}
+
+                            {% if asset.open_ports %}
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for port in asset.open_ports %}
+                                <span class="badge badge-outline mono"
+                                    style="border-color: rgba(0, 242, 255, 0.3); color: var(--accent-primary);">
+                                    {{ port }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <span class="text-muted small fst-italic">No open ports</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Findings -->
+                        <td>
+                            {% if asset.vulnerabilities %}
+                            <div class="d-flex flex-column">
+                                {% for cat, vulns in asset.vulnerabilities.items() %}
+                                {% for vuln in vulns %}
+                                <div class="vuln-row">
+                                    <i class="bi bi-exclamation-triangle-fill vuln-icon"></i>
+                                    <span class="text-white small fw-medium">{{ vuln }}</span>
+                                </div>
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="d-flex align-items-center gap-2 text-muted opacity-50">
+                                <i class="bi bi-shield-check fs-5"></i>
+                                <span class="small">No vulnerabilities detected</span>
+                            </div>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function () {
+        // Prepare Data for Charts
+        const cloudAssets = JSON.parse('{{ assets|tojson }}');
+
+        // 1. Asset Distribution Data
+        const typeCounts = {};
+        cloudAssets.forEach(a => {
+            typeCounts[a.resource_type] = (typeCounts[a.resource_type] || 0) + 1;
+        });
+
+        // 2. Vulnerability Data
+        let critical = 0, warning = 0, safe = 0;
+        cloudAssets.forEach(a => {
+            if (Object.keys(a.vulnerabilities).length > 0) {
+                // Simple heuristic for demo: if it has vulns, check keywords
+                const vulns = JSON.stringify(a.vulnerabilities).toLowerCase();
+                if (vulns.includes('public') || vulns.includes('admin') || vulns.includes('unencrypted')) {
+                    critical++;
+                } else {
+                    warning++;
+                }
+            } else {
+                safe++;
+            }
+        });
+
+        // Chart Configuration Defaults
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Outfit', sans-serif";
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.05)';
+
+        // Render Asset Chart
+        new Chart(document.getElementById('assetChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(typeCounts),
+                datasets: [{
+                    data: Object.values(typeCounts),
+                    backgroundColor: [
+                        '#00f2ff', '#7000ff', '#ff0055', '#ffbd00', '#00ff9d'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { boxWidth: 12, padding: 20 }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Render Risk Chart
+        new Chart(document.getElementById('riskChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Critical', 'Warning', 'Safe'],
+                datasets: [{
+                    label: 'Assets',
+                    data: [critical, warning, safe],
+                    backgroundColor: [
+                        '#ff0055', // Critical
+                        '#ffbd00', // Warning
+                        '#00ff9d'  // Safe
+                    ],
+                    borderRadius: 6,
+                    barThickness: 40
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    })();
+</script>
+{% endblock %}
