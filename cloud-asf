@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+#
+# ╔═══════════════════════════════════════════════════════════════════════════════╗
+# ║           Cloud Attack Surface Framework v2.0 - Launcher Script              ║
+# ╚═══════════════════════════════════════════════════════════════════════════════╝
+#
+# The Most Powerful Cloud Pentesting Tool in the World
+#
+# Usage:
+#   ./cloud-asf scan <target>              # Full scan
+#   ./cloud-asf recon full <domain>        # Full recon
+#   ./cloud-asf storage enum <keyword>     # Storage enumeration
+#   ./cloud-asf secrets scan <path>        # Secret scanning
+#   ./cloud-asf audit aws                  # AWS audit
+#   ./cloud-asf --help                     # Show help
+#
+
+set -e
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+VENV_DIR="$SCRIPT_DIR/.venv"
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+NC='\033[0m' # No Color
+
+# Create virtual environment if it doesn't exist
+if [ ! -d "$VENV_DIR" ]; then
+    echo -e "${YELLOW}[*] Creating virtual environment...${NC}"
+    python3 -m venv "$VENV_DIR"
+    
+    echo -e "${YELLOW}[*] Installing dependencies...${NC}"
+    "$VENV_DIR/bin/pip" install --upgrade pip --quiet
+    "$VENV_DIR/bin/pip" install typer rich aiohttp boto3 netaddr --quiet
+    
+    # Install from requirements.txt if exists
+    if [ -f "$SCRIPT_DIR/requirements.txt" ]; then
+        "$VENV_DIR/bin/pip" install -r "$SCRIPT_DIR/requirements.txt" --quiet 2>/dev/null || true
+    fi
+    
+    echo -e "${GREEN}[] Virtual environment ready${NC}"
+fi
+
+# Add bin to PATH for tools
+export PATH="$SCRIPT_DIR/bin:$PATH"
+
+# Run the CLI
+"$VENV_DIR/bin/python" -m src.python.orchestrator.main "$@"
