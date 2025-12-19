@@ -1,0 +1,211 @@
+# ==============================================================================
+# Cloud Attack Surface Detector - .gitignore
+# Security-hardened for GitHub publishing
+# ==============================================================================
+
+# ==============================================================================
+# SECURITY CRITICAL - NEVER COMMIT THESE
+# ==============================================================================
+
+# Environment files with secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.test
+*.env
+!.env.example
+
+# Cloud credentials
+credentials.json
+**/credentials.json
+service-account*.json
+**/service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+
+# AWS specific
+.aws/
+aws_credentials
+.boto
+
+# Azure specific
+.azure/
+azure_credentials
+
+# GCP specific
+.gcloud/
+gcloud_credentials
+application_default_credentials.json
+
+# SSH keys (in case someone accidentally adds them)
+id_rsa
+id_rsa.pub
+id_ed25519
+id_ed25519.pub
+*.ppk
+
+# ==============================================================================
+# Python
+# ==============================================================================
+
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+.python-version
+
+# Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+*.whl
+
+# ==============================================================================
+# Go
+# ==============================================================================
+
+# Large binaries that exceed GitHub's 100MB limit
+bin/nuclei
+bin/trufflehog
+
+# Go workspace
+go.work
+
+# ==============================================================================
+# Node.js / Frontend
+# ==============================================================================
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+.nuxt/
+.output/
+
+# ==============================================================================
+# IDE & Editor
+# ==============================================================================
+
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+*.sublime-project
+*.sublime-workspace
+.history/
+
+# ==============================================================================
+# Operating System
+# ==============================================================================
+
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ==============================================================================
+# Logs & Debug
+# ==============================================================================
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+backend_debug.log
+
+# ==============================================================================
+# Testing
+# ==============================================================================
+
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# ==============================================================================
+# Type Checking & Linting
+# ==============================================================================
+
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.ruff_cache/
+.eslintcache
+
+# ==============================================================================
+# Project Specific
+# ==============================================================================
+
+# User-generated reports (may contain sensitive scan data)
+reports/*.html
+reports/*.json
+reports/*.csv
+!reports/.gitkeep
+
+# Scan results
+scans/
+*.state
+state/
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Large vendored dependencies (removed during cleanup)
+src/python/orchestrator/projectdiscovery/
+
+# Runtime data files
+data/cloud_data/*.json
+
+# Dashboard backend data (contains credentials and scan results)
+src/dashboard/backend/data/
+!src/dashboard/backend/data/.gitkeep
+
+# Test artifacts
+test_input.json
+test_output.json
+tests/fixtures/*.json
+
+# Backup files
+*.bak
+*.backup
+Full_Report.md.bak
+
+# ==============================================================================
+# Docker
+# ==============================================================================
+
+.docker/

@@ -1,0 +1,64 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Logs
+logs/
+*.log
+
+# Reports (build time)
+reports/*.html
+reports/*.json
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+projectdiscovery/
+scans/
+data/cloud_data/
+*.state
+
+# Large binaries (install separately)
+bin/nuclei
+bin/naabu
+bin/subfinder
+bin/dnsx
+bin/katana
+bin/trufflehog
+
+# Temp files
+*.tmp
+*.temp
+test_input.json
